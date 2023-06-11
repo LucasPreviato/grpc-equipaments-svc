@@ -1,0 +1,41 @@
+version: '3.9'
+services:
+  equipaments-svc-dev:
+    container_name: equipaments-svc-dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 50054:50054
+    volumes:
+      - .:/home/node/backend/equipaments-svc 
+      - ./.docker/zsh/powerlevel10k/.p10k.zsh:/home/node/.p10k.zsh:delegated
+      - ./.docker/zsh/history:/home/node/zsh:delegated
+    depends_on:
+      - micro-equipaments-dev
+  micro-equipaments-dev:
+    container_name: micro-equipaments-dev
+    image: postgres:alpine3.18
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - ./.docker/postgres:/home/node/postgres/data
+  equipaments-db-dev-test:
+    container_name: equipaments-db-dev-test
+    image: postgres:alpine3.18
+    profiles:
+      - test
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    tmpfs:
+      - /var/lib/postgresql/data
+networks:
+  default:
+    name: labs-network
